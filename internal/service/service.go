@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/DiasOrazbaev/kazanexpress-test-task/internal/batch"
+	"github.com/DiasOrazbaev/kazanexpress-test-task/internal/service/dto"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -76,6 +77,24 @@ func (e *ExternalService) BatchHandler(w http.ResponseWriter, r *http.Request, _
 
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte("Service started processing your batches, just wait..."))
+	if err != nil {
+		return
+	}
+}
+
+func (e *ExternalService) GetLimitsHandler(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
+	max, t := e.GetLimits()
+	resp := dto.GetLimitResponse{
+		MaxItemCount:  max,
+		ProcessPeriod: t,
+	}
+	rp, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(rp)
 	if err != nil {
 		return
 	}
